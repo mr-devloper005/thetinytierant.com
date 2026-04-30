@@ -3,42 +3,16 @@ import { notFound } from "next/navigation";
 import { Footer } from "@/components/shared/footer";
 import { NavbarShell } from "@/components/shared/navbar-shell";
 import { ContentImage } from "@/components/shared/content-image";
+import { RichContent, formatRichHtml } from "@/components/shared/rich-content";
 import { TaskPostCard } from "@/components/shared/task-post-card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { SchemaJsonLd } from "@/components/seo/schema-jsonld";
-import { buildPostUrl } from "@/lib/task-data";
+import { buildPostUrl, fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { buildPostMetadata, buildTaskMetadata } from "@/lib/seo";
-import { fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { SITE_CONFIG } from "@/lib/site-config";
 
 export const revalidate = 3;
-
-const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-
-const sanitizeRichHtml = (html: string) =>
-  html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
-    .replace(/<object[^>]*>[\s\S]*?<\/object>/gi, "")
-    .replace(/\son[a-z]+\s*=\s*(['"]).*?\1/gi, "")
-    .replace(/\shref\s*=\s*(['"])javascript:.*?\1/gi, ' href="#"');
-
-const formatRichHtml = (raw?: string | null, fallback = "Profile details will appear here once available.") => {
-  const source = typeof raw === "string" ? raw.trim() : "";
-  if (!source) return `<p>${escapeHtml(fallback)}</p>`;
-  if (/<[a-z][\s\S]*>/i.test(source)) return sanitizeRichHtml(source);
-  return source
-    .split(/\n{2,}/)
-    .map((paragraph) => `<p>${escapeHtml(paragraph.replace(/\n/g, " ").trim())}</p>`)
-    .join("");
-};
 
 export async function generateStaticParams() {
   const posts = await fetchTaskPosts("profile", 50);
@@ -65,6 +39,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   if (!post) {
     notFound();
   }
+
   const content = (post.content || {}) as Record<string, any>;
   const logoUrl = typeof content.logo === "string" ? content.logo : undefined;
   const brandName =
@@ -74,11 +49,19 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
     post.title;
   const website = content.website as string | undefined;
   const domain = website ? website.replace(/^https?:\/\//, "").replace(/\/.*$/, "") : undefined;
+  const location =
+    (content.location as string | undefined) ||
+    (content.address as string | undefined);
+  const email = content.email as string | undefined;
+  const category = (content.category as string | undefined) || "Profile";
   const description =
     (content.description as string | undefined) ||
     post.summary ||
     "Profile details will appear here once available.";
-  const descriptionHtml = formatRichHtml(description);
+  const descriptionHtml = formatRichHtml(description, "Profile details will appear here once available.");
+  const highlights = Array.isArray(content.highlights)
+    ? content.highlights.filter((item): item is string => typeof item === "string").slice(0, 3)
+    : [];
   const suggestedArticles = await fetchTaskPosts("article", 6);
   const baseUrl = SITE_CONFIG.baseUrl.replace(/\/$/, "");
   const breadcrumbData = {
@@ -107,39 +90,98 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#08111f_0%,#111c30_36%,#f6f7fb_36%,#f6f7fb_100%)]">
       <NavbarShell />
       <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <SchemaJsonLd data={breadcrumbData} />
-        <section className="rounded-3xl border border-border/60 bg-white/90 p-8 shadow-sm md:p-12">
-          <div className="grid gap-8 md:grid-cols-[200px_1fr] md:items-start">
-            <div className="flex justify-center md:justify-start">
-              <div className="relative h-36 w-36 overflow-hidden rounded-full border border-border/70 bg-muted">
-                {logoUrl ? (
-                  <ContentImage src={logoUrl} alt={post.title} fill className="object-cover" sizes="144px" intrinsicWidth={144} intrinsicHeight={144} />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl font-semibold text-muted-foreground">
-                    {post.title.slice(0, 1).toUpperCase()}
+        <section className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/8 shadow-[0_30px_90px_rgba(2,6,23,0.4)] backdrop-blur-sm">
+          <div className="relative min-h-[240px] border-b border-white/10 bg-[#0c172b]">
+            {logoUrl ? (
+              <ContentImage src={logoUrl} alt={post.title} fill className="object-cover opacity-30" sizes="100vw" intrinsicWidth={1600} intrinsicHeight={720} />
+            ) : null}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#07111f] via-[#0e1a30]/92 to-[#172845]/88" />
+            <div className="relative grid gap-8 p-8 md:grid-cols-[220px_1fr] md:p-12">
+              <div className="flex justify-center md:justify-start">
+                <div className="relative h-40 w-40 overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 shadow-2xl backdrop-blur-sm">
+                  {logoUrl ? (
+                    <ContentImage src={logoUrl} alt={post.title} fill className="object-cover" sizes="160px" intrinsicWidth={160} intrinsicHeight={160} />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-white/88">
+                      {post.title.slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="text-white">
+                <Badge className="bg-white text-slate-950">{category}</Badge>
+                <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">{brandName}</h1>
+                {domain ? (
+                  <p className="mt-2 text-sm font-medium text-white/68">{domain}</p>
+                ) : null}
+                <p className="mt-5 max-w-2xl text-sm leading-8 text-slate-300">
+                  A cleaner profile surface for discovery, reputation, and quick trust signals.
+                </p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  {location ? (
+                    <div className="rounded-[1.4rem] border border-white/10 bg-black/15 p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">Location</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{location}</p>
+                    </div>
+                  ) : null}
+                  {email ? (
+                    <div className="rounded-[1.4rem] border border-white/10 bg-black/15 p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">Contact</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{email}</p>
+                    </div>
+                  ) : null}
+                  {website ? (
+                    <div className="rounded-[1.4rem] border border-white/10 bg-black/15 p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">Website</p>
+                      <p className="mt-2 truncate text-sm font-semibold text-white">{domain}</p>
+                    </div>
+                  ) : null}
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/15 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">Status</p>
+                    <p className="mt-2 text-sm font-semibold text-white">Featured profile</p>
                   </div>
-                )}
+                </div>
+                {website ? (
+                  <div className="mt-7">
+                    <Button asChild size="lg" className="bg-white px-7 text-base text-slate-950 hover:bg-slate-200">
+                      <Link href={website} target="_blank" rel="noopener noreferrer">
+                        Visit Official Site
+                      </Link>
+                    </Button>
+                  </div>
+                ) : null}
               </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground sm:text-4xl">{brandName}</h1>
-              {domain ? (
-                <p className="mt-1 text-sm font-medium text-muted-foreground">{domain}</p>
-              ) : null}
-              <article
-                className="article-content prose prose-slate mt-6 max-w-2xl text-base leading-relaxed prose-p:my-4 prose-a:text-primary prose-a:underline prose-strong:font-semibold"
-                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-              />
-              {website ? (
-                <div className="mt-8">
-                  <Button asChild size="lg" className="px-7 text-base">
-                    <Link href={website} target="_blank" rel="noopener noreferrer">
-                      Visit Official Site
-                    </Link>
-                  </Button>
+          </div>
+
+          <div className="grid gap-8 bg-[#f6f7fb] p-8 md:grid-cols-[1.15fr_0.85fr] md:p-12">
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">About this profile</p>
+              <RichContent html={descriptionHtml} className="mt-4 max-w-none text-slate-700" />
+            </div>
+            <div className="space-y-6">
+              <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-slate-950">Quick view</h2>
+                <div className="mt-4 space-y-3 text-sm text-slate-600">
+                  {location ? <p>{location}</p> : null}
+                  {email ? <p>{email}</p> : null}
+                  {domain ? <p>{domain}</p> : null}
+                </div>
+              </div>
+              {highlights.length ? (
+                <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold text-slate-950">Highlights</h2>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {highlights.map((item) => (
+                      <span key={item} className="rounded-full border border-slate-200 px-3 py-1 text-sm text-slate-600">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -149,8 +191,8 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         {suggestedArticles.length ? (
           <section className="mt-12">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">Suggested articles</h2>
-              <Link href="/articles" className="text-sm font-medium text-primary hover:underline">
+              <h2 className="text-xl font-semibold text-slate-950">Suggested articles</h2>
+              <Link href="/articles" className="text-sm font-medium text-slate-700 hover:text-slate-950">
                 View all
               </Link>
             </div>
@@ -164,21 +206,21 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                 />
               ))}
             </div>
-            <nav className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
-              <p className="text-sm font-semibold text-foreground">Related links</p>
+            <nav className="mt-6 rounded-2xl border border-slate-200 bg-white/80 p-4">
+              <p className="text-sm font-semibold text-slate-950">Related links</p>
               <ul className="mt-2 space-y-2 text-sm">
                 {suggestedArticles.slice(0, 3).map((article) => (
                   <li key={`related-${article.id}`}>
                     <Link
                       href={buildPostUrl("article", article.slug)}
-                      className="text-primary underline-offset-4 hover:underline"
+                      className="text-slate-700 underline-offset-4 hover:text-slate-950 hover:underline"
                     >
                       {article.title}
                     </Link>
                   </li>
                 ))}
                 <li>
-                  <Link href="/profile" className="text-primary underline-offset-4 hover:underline">
+                  <Link href="/profile" className="text-slate-700 underline-offset-4 hover:text-slate-950 hover:underline">
                     Browse all profiles
                   </Link>
                 </li>

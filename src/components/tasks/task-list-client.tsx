@@ -60,8 +60,15 @@ export function TaskListClient({ task, initialPosts, category }: Props) {
     );
   }
 
+  const layoutClass =
+    task === "image"
+      ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5"
+      : task === "profile"
+        ? "grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+        : "grid gap-6 sm:grid-cols-2 lg:grid-cols-4";
+
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className={layoutClass}>
       {merged.map((post) => {
         const localOnly = (post as any).localOnly;
         const href = localOnly

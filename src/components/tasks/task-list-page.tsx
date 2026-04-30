@@ -59,6 +59,8 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   const layoutKey = recipe.taskLayouts[task as keyof typeof recipe.taskLayouts] || `${task}-${task === 'listing' ? 'directory' : 'editorial'}`
   const shellClass = variantShells[layoutKey as keyof typeof variantShells] || 'bg-background'
   const Icon = taskIcons[task] || LayoutGrid
+  const imagePreviewPosts = task === 'image' ? posts.slice(0, 3) : []
+  const profilePreviewPosts = task === 'profile' ? posts.slice(0, 3) : []
 
   const isDark = ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
   const ui = isDark
@@ -175,13 +177,27 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
               <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] ${ui.soft}`}>
                 <Icon className="h-3.5 w-3.5" /> Visual feed
               </div>
-              <h1 className="mt-5 text-5xl font-semibold tracking-[-0.05em]">{taskConfig?.description || 'Latest posts'}</h1>
-              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This surface leans into stronger imagery, larger modules, and more expressive spacing so visual content feels materially different from reading and directory pages.</p>
+              <h1 className="mt-5 text-5xl font-semibold tracking-[-0.05em]">Browse image stories in a cleaner, album-first layout.</h1>
+              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>Inspired by classic photo-sharing platforms, this surface gives each image more breathing room, clearer authorship, and a stronger gallery rhythm.</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href={taskConfig?.route || '#'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${ui.button}`}>Open gallery <ArrowRight className="h-4 w-4" /></Link>
+                <Link href="/search" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${ui.soft}`}>Search visuals</Link>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className={`min-h-[220px] rounded-[2rem] ${ui.panel}`} />
-              <div className={`min-h-[220px] rounded-[2rem] ${ui.soft}`} />
-              <div className={`col-span-2 min-h-[120px] rounded-[2rem] ${ui.panel}`} />
+              {imagePreviewPosts[0] ? (
+                <div className={`col-span-2 rounded-[2rem] p-5 ${ui.panel}`}>
+                  <p className={`text-[11px] font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>Lead album</p>
+                  <p className="mt-3 text-2xl font-semibold">{imagePreviewPosts[0].title}</p>
+                  <p className={`mt-3 text-sm leading-7 ${ui.muted}`}>{imagePreviewPosts[0].summary || 'A featured visual set from the latest gallery feed.'}</p>
+                </div>
+              ) : null}
+              {imagePreviewPosts.slice(1).map((post, index) => (
+                <div key={post.id} className={`min-h-[180px] rounded-[2rem] p-5 ${index === 0 ? ui.soft : ui.panel}`}>
+                  <p className={`text-[11px] font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>Gallery card</p>
+                  <p className="mt-3 text-lg font-semibold">{post.title}</p>
+                </div>
+              ))}
             </div>
           </section>
         ) : null}
@@ -189,11 +205,22 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
         {layoutKey === 'profile-creator' || layoutKey === 'profile-business' ? (
           <section className={`mb-12 rounded-[2.2rem] p-8 shadow-[0_24px_70px_rgba(15,23,42,0.1)] ${ui.panel}`}>
             <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-              <div className={`min-h-[240px] rounded-[2rem] ${ui.soft}`} />
+              <div className={`grid min-h-[240px] gap-3 rounded-[2rem] p-4 ${ui.soft}`}>
+                {profilePreviewPosts.map((post) => (
+                  <div key={post.id} className={`rounded-[1.4rem] p-4 ${ui.panel}`}>
+                    <p className={`text-[11px] font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>Member card</p>
+                    <p className="mt-2 text-lg font-semibold text-foreground">{post.title}</p>
+                  </div>
+                ))}
+              </div>
               <div>
                 <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
-                <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Profiles with stronger identity, trust, and reputation cues.</h1>
-                <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This layout prioritizes the person or business surface first, then lets the feed continue below without borrowing the same visual logic used by articles or listings.</p>
+                <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Profiles with stronger identity, trust, and community cues.</h1>
+                <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This member directory layout borrows more from creator and album platforms, so each profile feels like a destination instead of a generic post card.</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link href={taskConfig?.route || '#'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${ui.button}`}>Browse profiles <ArrowRight className="h-4 w-4" /></Link>
+                  <Link href="/search" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${ui.soft}`}>Find creators</Link>
+                </div>
               </div>
             </div>
           </section>

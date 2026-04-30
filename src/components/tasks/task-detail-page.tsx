@@ -237,11 +237,128 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
           taskRoute={taskConfig?.route || "/"}
           post={post}
           description={description}
+          descriptionHtml={descriptionHtml}
           category={category}
           images={images}
           mapEmbedUrl={mapEmbedUrl}
           related={related}
         />
+        <Footer />
+      </div>
+    );
+  }
+
+  if (task === "image") {
+    return (
+      <div className="min-h-screen bg-[linear-gradient(180deg,#08111f_0%,#111b2d_42%,#f7f8fb_42%,#f7f8fb_100%)]">
+        <NavbarShell />
+        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SchemaJsonLd data={schemaPayload} />
+          <Link
+            href={taskConfig?.route || "/"}
+            className="mb-6 inline-flex items-center text-sm text-white/74 hover:text-white"
+          >
+            ← Back to {taskConfig?.label || "posts"}
+          </Link>
+
+          <section className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+            <div className="space-y-6">
+              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/6 shadow-[0_30px_90px_rgba(2,6,23,0.45)]">
+                <div className="relative aspect-[16/10] w-full bg-slate-900">
+                  <ContentImage
+                    src={images[0]}
+                    alt={`${post.title} featured image`}
+                    fill
+                    className="object-cover"
+                    intrinsicWidth={1600}
+                    intrinsicHeight={1000}
+                  />
+                </div>
+              </div>
+              {images.length > 1 ? (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  {images.slice(1, 5).map((image, index) => (
+                    <div key={`${image}-${index}`} className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
+                      <ContentImage
+                        src={image}
+                        alt={`${post.title} gallery image ${index + 2}`}
+                        fill
+                        className="object-cover"
+                        intrinsicWidth={720}
+                        intrinsicHeight={900}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <aside className="rounded-[2rem] border border-white/10 bg-white/8 p-7 text-white shadow-[0_24px_70px_rgba(2,6,23,0.35)] backdrop-blur-sm">
+              <Badge className="bg-white text-slate-950">{category}</Badge>
+              <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">{post.title}</h1>
+              <div className="mt-4 text-sm leading-8 text-slate-300" dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1.4rem] border border-white/10 bg-black/15 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Curated by</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{post.authorName || SITE_CONFIG.name}</p>
+                </div>
+                {location ? (
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/15 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Location</p>
+                    <p className="mt-2 text-sm font-semibold text-white">{location}</p>
+                  </div>
+                ) : null}
+              </div>
+            </aside>
+          </section>
+
+          <section className="mt-10 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Story</p>
+              <RichContent html={descriptionHtml} className="mt-4 max-w-none text-slate-700" />
+            </div>
+            <div className="space-y-6">
+              {content.highlights?.length ? (
+                <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold text-slate-950">Highlights</h2>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                    {content.highlights.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          </section>
+
+          <section className="mt-12">
+            {related.length ? (
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-slate-950">More in {category}</h2>
+                  {taskConfig?.route ? (
+                    <Link
+                      href={taskConfig.route}
+                      className="text-sm text-slate-600 hover:text-slate-950"
+                    >
+                      View all
+                    </Link>
+                  ) : null}
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {related.map((item) => (
+                    <TaskPostCard
+                      key={item.id}
+                      post={item}
+                      href={buildPostUrl(task, item.slug)}
+                      taskKey={task}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : null}
+          </section>
+        </main>
         <Footer />
       </div>
     );
