@@ -1,6 +1,6 @@
 import { ContentImage } from '@/components/shared/content-image'
 import Link from 'next/link'
-import { ArrowUpRight, ExternalLink, FileText, Mail, MapPin, Tag } from 'lucide-react'
+import { ArrowUpRight, Camera, ExternalLink, FileText, Mail, MapPin, Tag, UserRound } from 'lucide-react'
 import type { SitePost } from '@/lib/site-connector'
 import { CATEGORY_OPTIONS, normalizeCategory } from '@/lib/categories'
 import type { TaskKey } from '@/lib/site-config'
@@ -13,15 +13,27 @@ type ListingContent = {
   category?: string
   description?: string
   email?: string
+  website?: string
+  highlights?: string[]
 }
 
-const stripHtml = (value?: string | null) =>
-  (value || '')
+const decodeHtmlEntities = (value: string) =>
+  value
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+
+const stripHtml = (value?: string | null) => {
+  const decoded = decodeHtmlEntities(value || '')
+  return decoded
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
     .replace(/<\/?[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
 
 const getExcerpt = (value?: string | null, maxLength = 140) => {
   const text = stripHtml(value)
@@ -79,6 +91,12 @@ const cardStyles = {
     title: 'text-[#1f2617]',
     badge: 'bg-[#1f2617] text-[#edf5dc]',
   },
+  'tierant-custom': {
+    frame: 'rounded-xl border border-indigo-200/60 bg-gradient-to-br from-white via-indigo-50/50 to-purple-50/30 shadow-[0_12px_40px_rgba(79,70,229,0.1)] hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(79,70,229,0.15)]',
+    muted: 'text-slate-900',
+    title: 'text-indigo-950',
+    badge: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white',
+  },
 } as const
 
 const getVariantForTask = (taskKey: TaskKey) => SITE_THEME.cards[taskKey] || 'listing-elevated'
@@ -106,7 +124,7 @@ export function TaskPostCard({
   const variant = taskKey || 'listing'
   const visualVariant = cardStyles[getVariantForTask(variant)]
   const isBookmarkVariant = variant === 'sbm' || variant === 'social'
-  const imageAspect = variant === 'image' ? 'aspect-[4/5]' : variant === 'article' ? 'aspect-[16/10]' : variant === 'pdf' ? 'aspect-[4/5]' : variant === 'classified' ? 'aspect-[16/11]' : 'aspect-[4/3]'
+  const imageAspect = variant === 'image' ? 'aspect-square' : variant === 'article' ? 'aspect-[16/10]' : variant === 'pdf' ? 'aspect-[4/5]' : variant === 'classified' ? 'aspect-[16/11]' : 'aspect-[4/3]'
   const altText = `${post.title} ${category} ${variant === 'listing' ? 'business listing' : variant} image`
   const imageSizes = variant === 'article' ? '(max-width: 640px) 90vw, (max-width: 1024px) 48vw, 420px' : variant === 'image' ? '(max-width: 640px) 82vw, (max-width: 1024px) 34vw, 320px' : '(max-width: 640px) 85vw, (max-width: 1024px) 42vw, 340px'
 
@@ -178,6 +196,114 @@ export function TaskPostCard({
           <h3 className={`mt-3 line-clamp-2 text-lg font-semibold leading-snug group-hover:opacity-85 ${visualVariant.title}`}>{post.title}</h3>
           <p className={`mt-2 line-clamp-3 text-sm leading-7 ${visualVariant.muted}`}>{getExcerpt(content.description || post.summary, compact ? 120 : 180) || 'Explore this bookmark.'}</p>
           {content.email ? <div className={`mt-3 inline-flex items-center gap-1 text-xs ${visualVariant.muted}`}><Mail className="h-3.5 w-3.5" />{content.email}</div> : null}
+        </div>
+      </Link>
+    )
+  }
+
+  if (variant === 'image') {
+    return (
+      <Link href={href} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${visualVariant.frame}`}>
+        <div className="relative aspect-square overflow-hidden bg-[#0f172a]">
+          <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={80} className="object-cover transition-transform duration-700 group-hover:scale-[1.06]" intrinsicWidth={960} intrinsicHeight={1200} />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050b16] via-[#050b16]/10 to-transparent" />
+          <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
+            <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${visualVariant.badge}`}>
+              <Camera className="h-3.5 w-3.5" />
+              {category}
+            </span>
+            {content.location ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/35 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                <MapPin className="h-3.5 w-3.5" />
+                {content.location}
+              </span>
+            ) : null}
+          </div>
+          <div className="absolute inset-x-0 bottom-0 p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/75">Featured visual</p>
+            <h3 className="mt-1 line-clamp-2 text-lg font-semibold leading-tight text-white">{post.title}</h3>
+          </div>
+        </div>
+        <div className="flex flex-1 flex-col p-3">
+          <p className={`line-clamp-2 text-xs leading-5 ${visualVariant.muted}`}>{getExcerpt(content.description || post.summary, compact ? 100 : 140) || 'Explore this visual post.'}</p>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className={`inline-flex items-center gap-2 text-xs ${visualVariant.muted}`}>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white">
+                <UserRound className="h-3 w-3" />
+              </div>
+              <div>
+                <p className="font-semibold text-white/90">{post.authorName || 'Gallery curator'}</p>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/60">View detail</p>
+              </div>
+            </div>
+            <ArrowUpRight className={`h-4 w-4 shrink-0 ${visualVariant.muted}`} />
+          </div>
+        </div>
+      </Link>
+    )
+  }
+
+  if (variant === 'profile') {
+    const initials = post.title
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('') || 'P'
+    const highlights = Array.isArray(content.highlights)
+      ? content.highlights.filter((item): item is string => typeof item === 'string').slice(0, 2)
+      : []
+
+    return (
+      <Link href={href} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${visualVariant.frame}`}>
+        <div className="relative min-h-[170px] overflow-hidden bg-[#0f172a]">
+          <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={72} className="object-cover opacity-45 transition-transform duration-700 group-hover:scale-[1.04]" intrinsicWidth={960} intrinsicHeight={720} />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#07111f] via-[#0e1a30]/92 to-[#172845]/88" />
+          <div className="relative flex h-full items-end justify-between gap-4 p-5">
+            <div className="flex items-end gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-white/15 bg-white/10 text-lg font-semibold text-white backdrop-blur-sm">
+                {initials}
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/65">Profile spotlight</p>
+                <h3 className="mt-2 line-clamp-2 text-2xl font-semibold text-white">{post.title}</h3>
+                {content.location ? (
+                  <p className="mt-2 inline-flex items-center gap-1 text-sm text-white/72">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {content.location}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <ArrowUpRight className="mb-1 h-5 w-5 shrink-0 text-white/65" />
+          </div>
+        </div>
+        <div className="flex flex-1 flex-col p-5">
+          <div className="flex flex-wrap gap-2">
+            <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${visualVariant.badge}`}>
+              <Tag className="h-3.5 w-3.5" />
+              {category}
+            </span>
+            {content.website ? (
+              <span className={`inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${visualVariant.muted}`}>
+                Active profile
+              </span>
+            ) : null}
+          </div>
+          <p className={`mt-4 line-clamp-3 text-sm leading-7 ${visualVariant.muted}`}>{getExcerpt(content.description || post.summary, 170) || 'Explore this profile.'}</p>
+          {highlights.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {highlights.map((item) => (
+                <span key={item} className={`rounded-full border border-white/10 px-3 py-1 text-xs ${visualVariant.muted}`}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          <div className="mt-auto flex flex-wrap gap-3 pt-5 text-xs">
+            {content.email ? <span className={`inline-flex items-center gap-1 ${visualVariant.muted}`}><Mail className="h-3.5 w-3.5" />{content.email}</span> : null}
+            {content.location ? <span className={`inline-flex items-center gap-1 ${visualVariant.muted}`}><MapPin className="h-3.5 w-3.5" />{content.location}</span> : null}
+          </div>
         </div>
       </Link>
     )

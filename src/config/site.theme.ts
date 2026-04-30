@@ -20,7 +20,7 @@ export const SITE_THEME = defineSiteTheme({
   cards: {
     listing: 'listing-elevated',
     article: 'editorial-feature',
-    image: 'studio-panel',
+    image: 'tierant-custom',
     profile: 'studio-panel',
     classified: 'catalog-grid',
     pdf: 'catalog-grid',

@@ -3,7 +3,7 @@ export type HeroVariant = 'search-first' | 'spotlight-split' | 'gallery-mosaic' 
 export type HomeLayout = 'directory-stack' | 'editorial-rhythm' | 'studio-showcase' | 'market-catalog'
 export type NavigationVariant = 'compact' | 'editorial' | 'capsule' | 'minimal'
 export type FooterVariant = 'columns' | 'editorial' | 'dense' | 'minimal'
-export type TaskCardVariant = 'listing-elevated' | 'editorial-feature' | 'studio-panel' | 'catalog-grid'
+export type TaskCardVariant = 'listing-elevated' | 'editorial-feature' | 'studio-panel' | 'catalog-grid' | 'tierant-custom'
 export type SiteTaskKey =
   | 'listing'
   | 'classified'
