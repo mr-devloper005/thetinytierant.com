@@ -4,7 +4,7 @@ export const SITE_RECIPE: SiteRecipe = {
   productFamily: 'visual',
   themePack: 'pinterest-creator',
   homepageTemplate: 'image-profile-home',
-  navbarTemplate: 'floating-bar',
+  navbarTemplate: 'compact-bar',
   footerTemplate: 'minimal-footer',
   motionPack: 'studio-stagger',
   primaryTask: 'image',
