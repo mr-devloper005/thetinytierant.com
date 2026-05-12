@@ -9,37 +9,37 @@ import { CONTACT_PAGE_OVERRIDE_ENABLED, ContactPageOverride } from '@/overrides/
 function getTone(kind: ReturnType<typeof getProductKind>) {
   if (kind === 'directory') {
     return {
-      shell: 'bg-[#f8fbff] text-slate-950',
-      panel: 'border border-slate-200 bg-white',
-      soft: 'border border-slate-200 bg-slate-50',
-      muted: 'text-slate-600',
-      action: 'bg-slate-950 text-white hover:bg-slate-800',
+      shell: 'bg-[#F6F3EB] text-black',
+      panel: 'border border-[#869B7E]/20 bg-[#C9CAAC]/30',
+      soft: 'border border-[#869B7E]/30 bg-[#F6F3EB]/50',
+      muted: 'text-gray-700',
+      action: 'bg-[#7F2020] text-[#F6F3EB] hover:bg-[rgb(127,32,32,0.9)]',
     }
   }
   if (kind === 'editorial') {
     return {
-      shell: 'bg-[#fbf6ee] text-[#241711]',
-      panel: 'border border-[#dcc8b7] bg-[#fffdfa]',
-      soft: 'border border-[#e6d6c8] bg-[#fff4e8]',
-      muted: 'text-[#6e5547]',
-      action: 'bg-[#241711] text-[#fff1e2] hover:bg-[#3a241b]',
+      shell: 'bg-[#F6F3EB] text-black',
+      panel: 'border border-[#869B7E]/20 bg-[#C9CAAC]/30',
+      soft: 'border border-[#869B7E]/30 bg-[#F6F3EB]/50',
+      muted: 'text-gray-700',
+      action: 'bg-[#7F2020] text-[#F6F3EB] hover:bg-[rgb(127,32,32,0.9)]',
     }
   }
   if (kind === 'visual') {
     return {
-      shell: 'bg-[#07101f] text-white',
-      panel: 'border border-white/10 bg-white/6',
-      soft: 'border border-white/10 bg-white/5',
-      muted: 'text-slate-300',
-      action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
+      shell: 'bg-[#F6F3EB] text-black',
+      panel: 'border border-[#869B7E]/20 bg-[#C9CAAC]/30',
+      soft: 'border border-[#869B7E]/30 bg-[#F6F3EB]/50',
+      muted: 'text-gray-700',
+      action: 'bg-[#7F2020] text-[#F6F3EB] hover:bg-[rgb(127,32,32,0.9)]',
     }
   }
   return {
-    shell: 'bg-[#f7f1ea] text-[#261811]',
-    panel: 'border border-[#ddcdbd] bg-[#fffaf4]',
-    soft: 'border border-[#e8dbce] bg-[#f3e8db]',
-    muted: 'text-[#71574a]',
-    action: 'bg-[#5b2b3b] text-[#fff0f5] hover:bg-[#74364b]',
+    shell: 'bg-[#F6F3EB] text-black',
+    panel: 'border border-[#869B7E]/20 bg-[#C9CAAC]/30',
+    soft: 'border border-[#869B7E]/30 bg-[#F6F3EB]/50',
+    muted: 'text-gray-700',
+    action: 'bg-[#7F2020] text-[#F6F3EB] hover:bg-[rgb(127,32,32,0.9)]',
   }
 }
 
@@ -103,21 +103,9 @@ export default function ContactPage() {
 
           <div className={`rounded-[2rem] p-7 ${tone.panel}`}>
             <h2 className="text-2xl font-semibold">Send a message</h2>
-            <div className={`mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[1.4rem] p-4 ${tone.soft}`}>
-              <div>
-                <p className="text-sm font-semibold">Prefer direct email?</p>
-                <p className={`mt-1 text-sm ${tone.muted}`}>{contactEmail}</p>
-              </div>
-              <a
-                href={`mailto:${contactEmail}`}
-                className={`inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold ${tone.action}`}
-              >
-                Email us
-              </a>
-            </div>
             <form className="mt-6 grid gap-4">
               <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Your name" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Email address" />
+              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Write your email id" type="email" />
               <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="What do you need help with?" />
               <textarea className="min-h-[180px] rounded-2xl border border-current/10 bg-transparent px-4 py-3 text-sm" placeholder="Share the full context so we can respond with the right next step." />
               <button type="submit" className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${tone.action}`}>Send message</button>
