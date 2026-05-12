@@ -1,7 +1,8 @@
 import { PageShell } from "@/components/shared/page-shell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Tag, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { fetchSiteFeed } from "@/lib/site-connector";
 import { buildPostUrl, getPostTaskKey } from "@/lib/task-data";
 import { getMockPostsForTask } from "@/lib/mock-posts";
@@ -98,6 +99,55 @@ export default async function SearchPage({
         </form>
       }
     >
+      {/* Category Filter Section */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Tag className="h-5 w-5 text-muted-foreground" />
+          <h3 className="font-semibold">Filter by Category</h3>
+          {category && (
+            <span className="text-sm text-muted-foreground">
+              (Currently showing: <span className="font-medium capitalize">{category}</span>)
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/search"
+            className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              !category
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+            }`}
+          >
+            All Categories
+          </Link>
+          {[
+            { name: 'Restaurants', category: 'restaurant' },
+            { name: 'Shopping', category: 'shopping' },
+            { name: 'Services', category: 'services' },
+            { name: 'Health', category: 'health' },
+            { name: 'Education', category: 'education' },
+            { name: 'Entertainment', category: 'entertainment' },
+            { name: 'Travel', category: 'travel' },
+            { name: 'Technology', category: 'technology' },
+            { name: 'Business', category: 'business' },
+            { name: 'Lifestyle', category: 'lifestyle' },
+          ].map((item) => (
+            <Link
+              key={item.category}
+              href={`/search?category=${item.category}${query ? `&q=${query}` : ''}`}
+              className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                category === item.category
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {results.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((post) => {
@@ -109,6 +159,17 @@ export default async function SearchPage({
       ) : (
         <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
           No matching posts yet.
+          {category && (
+            <div className="mt-4">
+              <Link
+                href="/search"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+              >
+                View all posts
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </PageShell>

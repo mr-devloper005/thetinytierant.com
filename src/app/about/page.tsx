@@ -1,93 +1,145 @@
-import Link from "next/link";
-import { PageShell } from "@/components/shared/page-shell";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { mockTeamMembers } from "@/data/mock-data";
-import { SITE_CONFIG } from "@/lib/site-config";
+  'use client'
 
-const highlights = [
-  { label: "Creators onboarded", value: "12k+" },
-  { label: "Bookmarks shared", value: "180k" },
-  { label: "Listings published", value: "8.6k" },
-];
+import Link from "next/link";
+import { NavbarShell } from "@/components/shared/navbar-shell";
+import { Footer } from "@/components/shared/footer";
+import { SITE_CONFIG } from "@/lib/site-config";
+import { getFactoryState } from "@/design/factory/get-factory-state";
+import { getProductKind } from "@/design/factory/get-product-kind";
+import { ImageIcon, Sparkles, Users, Zap } from "lucide-react";
+
+function getTone(kind: ReturnType<typeof getProductKind>) {
+  if (kind === 'visual') {
+    return {
+      shell: 'bg-[#F6F3EB] text-black',
+      panel: 'border border-[#869B7E]/20 bg-[#C9CAAC]/30 shadow-[0_28px_80px_rgba(127,32,32,0.15)]',
+      soft: 'border border-[#869B7E]/30 bg-[#F6F3EB]/50',
+      muted: 'text-gray-700',
+      title: 'text-black',
+      badge: 'bg-[#7F2020] text-[#F6F3EB]',
+      action: 'bg-[#7F2020] text-[#F6F3EB] hover:bg-[rgb(127,32,32,0.9)]',
+    }
+  }
+  return {
+    shell: 'bg-gradient-to-br from-[#F6F3EB] to-[#C9CAAC] text-black',
+    panel: 'border border-[#869B7E]/20 bg-[#F6F3EB]/90 shadow-lg',
+    soft: 'border border-[#869B7E]/30 bg-[#F6F3EB]/50',
+    muted: 'text-gray-700',
+    title: 'text-black',
+    badge: 'bg-[#7F2020] text-[#F6F3EB]',
+    action: 'bg-[#7F2020] text-[#F6F3EB] hover:bg-[rgb(127,32,32,0.9)]',
+  }
+}
 
 const values = [
-  { title: "Curated by people", description: "We believe trusted recommendations beat endless feeds." },
-  { title: "Designed for focus", description: "Clear, calm UI helps you find the next best resource fast." },
-  { title: "Built to share", description: "Collections make collaboration and knowledge flow effortless." },
+  { 
+    icon: ImageIcon,
+    title: "Visual First", 
+    description: "We believe imagery leads the way. Every interaction is designed to put visual content front and center."
+  },
+  { 
+    icon: Sparkles,
+    title: "Creator Focused", 
+    description: "Built for creators who want to share their visual stories without the noise of traditional platforms."
+  },
+  { 
+    icon: Users,
+    title: "Community Driven", 
+    description: "A space where visual creators can connect, share, and discover amazing content together."
+  },
+  { 
+    icon: Zap,
+    title: "Lightning Fast", 
+    description: "Optimized for speed and performance, ensuring your visual content loads instantly."
+  },
 ];
 
 export default function AboutPage() {
-  return (
-    <PageShell
-      title={`About ${SITE_CONFIG.name}`}
-      description={`${SITE_CONFIG.name} is a modern platform for creators, communities, and curated business discovery.`}
-      actions={
-        <>
-          <Button variant="outline" asChild>
-            <Link href="/team">Meet the Team</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/contact">Contact Us</Link>
-          </Button>
-        </>
-      }
-    >
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-border bg-card">
-          <CardContent className="space-y-4 p-6">
-            <Badge variant="secondary">Our Story</Badge>
-            <h2 className="text-2xl font-semibold text-foreground">
-              A single home for knowledge, discovery, and community.
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {SITE_CONFIG.name} brings together publishing, listings, and social bookmarking so teams can move faster
-              and keep their best resources close.
-            </p>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {highlights.map((item) => (
-                <div key={item.label} className="rounded-lg border border-border bg-secondary/40 p-4">
-                  <div className="text-2xl font-semibold text-foreground">{item.value}</div>
-                  <div className="text-xs text-muted-foreground">{item.label}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-        <div className="space-y-4">
-          {values.map((value) => (
-            <Card key={value.title} className="border-border bg-card">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-foreground">{value.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{value.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+  const { recipe } = getFactoryState();
+  const productKind = getProductKind(recipe);
+  const tone = getTone(productKind);
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {mockTeamMembers.map((member) => (
-          <Card key={member.id} className="border-border bg-card transition-transform hover:-translate-y-1">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={member.avatar} alt={member.name} />
-                  <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{member.name}</p>
-                  <p className="text-xs text-muted-foreground">{member.role}</p>
+  return (
+    <div className={`min-h-screen ${tone.shell}`}>
+      <NavbarShell />
+      
+      <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        {/* Hero Section */}
+        <section className="mb-16 text-center">
+          <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.2em] ${tone.badge} mb-6`}>
+            <Sparkles className="h-4 w-4" />
+            About {SITE_CONFIG.name}
+          </div>
+          <h1 className={`text-5xl font-bold tracking-[-0.05em] mb-6 ${tone.title}`}>
+            Where Visual Stories
+            <br />
+            Come to Life
+          </h1>
+          <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${tone.muted}`}>
+            {SITE_CONFIG.name} is a modern platform designed for visual creators to share their stories, 
+            connect with their audience, and build a community around their visual content.
+          </p>
+        </section>
+
+        {/* Mission Section */}
+        <section className={`mb-16 rounded-[3rem] p-8 lg:p-12 ${tone.panel}`}>
+          <div className="max-w-4xl">
+            <h2 className={`text-3xl font-semibold mb-6 ${tone.title}`}>Our Mission</h2>
+            <p className={`text-lg leading-relaxed ${tone.muted} mb-6`}>
+              We're on a mission to create the best platform for visual storytellers. In a world dominated by text-heavy content, 
+              we believe that images should lead the conversation. Our platform is built from the ground up to prioritize 
+              visual content, making it easier for creators to share their work and for audiences to discover amazing visuals.
+            </p>
+            <p className={`text-lg leading-relaxed ${tone.muted}`}>
+              Whether you're a photographer, designer, artist, or visual storyteller, {SITE_CONFIG.name} provides the tools 
+              and community you need to showcase your work and connect with people who appreciate visual creativity.
+            </p>
+          </div>
+        </section>
+
+        {/* Values Grid */}
+        <section className="mb-16">
+          <h2 className={`text-3xl font-semibold text-center mb-12 ${tone.title}`}>What We Stand For</h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {values.map((value, index) => {
+              const Icon = value.icon;
+              return (
+                <div key={index} className={`rounded-2xl p-6 ${tone.soft} text-center group hover:scale-105 transition-transform duration-300`}>
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${tone.badge} mb-4`}>
+                    <Icon className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className={`text-xl font-semibold mb-3 ${tone.title}`}>{value.title}</h3>
+                  <p className={`text-sm leading-relaxed ${tone.muted}`}>{value.description}</p>
                 </div>
-              </div>
-              <p className="mt-3 text-sm text-muted-foreground">{member.bio}</p>
-              <p className="mt-3 text-xs text-muted-foreground">{member.location}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </PageShell>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className={`mb-16 rounded-[3rem] p-8 lg:p-12 ${tone.panel} text-center`}>
+          <h2 className={`text-3xl font-semibold mb-6 ${tone.title}`}>Ready to Share Your Visual Story?</h2>
+          <p className={`text-lg mb-8 ${tone.muted}`}>
+            Join thousands of visual creators who are already sharing their work on {SITE_CONFIG.name}.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              href="/register" 
+              className={`inline-flex items-center justify-center rounded-full px-8 py-4 text-lg font-semibold ${tone.action}`}
+            >
+              Get Started
+            </Link>
+            <Link 
+              href="/contact" 
+              className={`inline-flex items-center justify-center rounded-full border border-current/20 px-8 py-4 text-lg font-semibold ${tone.muted} hover:bg-current/10`}
+            >
+              Contact Us
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

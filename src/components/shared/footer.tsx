@@ -25,23 +25,16 @@ const footerLinks = {
     icon: taskIcons[task.key] || LayoutGrid,
   })),
   company: [
-    { name: 'About', href: '/about' },
-    { name: 'Team', href: '/team' },
-    { name: 'Careers', href: '/careers' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Press', href: '/press' },
+    { name: 'About Us', href: '/about' },
+    { name: 'Contact Us', href: '/contact' },
   ],
   resources: [
-    { name: 'Help Center', href: '/help' },
     { name: 'Community', href: '/community' },
-    { name: 'Developers', href: '/developers' },
-    { name: 'Status', href: '/status' },
   ],
+  support: [],
   legal: [
-    { name: 'Privacy', href: '/privacy' },
-    { name: 'Terms', href: '/terms' },
-    { name: 'Cookies', href: '/cookies' },
-    { name: 'Licenses', href: '/licenses' },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Terms of Service', href: '/terms' },
   ],
 }
 
@@ -62,19 +55,25 @@ export function Footer() {
 
   if (recipe.footer === 'minimal-footer') {
     return (
-      <footer className="border-t border-[#d7deca] bg-[#f4f6ef] text-[#1f2617]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <div>
-            <p className="text-lg font-semibold">{SITE_CONFIG.name}</p>
-            <p className="mt-1 text-sm text-[#56604b]">{SITE_CONFIG.description}</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {enabledTasks.slice(0, 5).map((task) => (
-              <Link key={task.key} href={task.route} className="rounded-lg border border-[#d7deca] bg-white px-3 py-2 text-sm font-medium text-[#1f2617] hover:bg-[#ebefdf]">
-                {task.label}
-              </Link>
+      <footer className="border-t border-[#869B7E]/30 bg-[#F6F3EB] text-black">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
+            <div>
+              <p className="text-lg font-semibold">{SITE_CONFIG.name}</p>
+              <p className="mt-1 text-sm text-gray-700">{SITE_CONFIG.description}</p>
+            </div>
+            {(['platform', 'company', 'resources', 'legal'] as const).filter(section => footerLinks[section].length > 0).map((section) => (
+              <div key={section}>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-gray-700">{section}</h3>
+                <ul className="mt-5 space-y-3 text-sm text-gray-700">
+                  {footerLinks[section].map((item: any) => (
+                    <li key={item.name}><Link href={item.href} className="flex items-center gap-2 hover:text-black">{item.icon ? <item.icon className="h-4 w-4" /> : null}{item.name}</Link></li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
+          <div className="mt-12 border-t border-[#869B7E]/30 pt-6 text-center text-sm text-gray-700">&copy; {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.</div>
         </div>
       </footer>
     )
@@ -142,7 +141,7 @@ export function Footer() {
     return (
       <footer className="border-t border-[#dbc6b6] bg-[linear-gradient(180deg,#fff9f0_0%,#fff1df_100%)] text-[#2f1d16]">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr_0.9fr]">
+          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr_0.9fr_0.9fr]">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#dbc6b6] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#72594a]">
                 <Sparkles className="h-3.5 w-3.5" />
@@ -155,6 +154,14 @@ export function Footer() {
               <h4 className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8b6d5a]">Sections</h4>
               <ul className="mt-4 space-y-3 text-sm">
                 {footerLinks.platform.map((item: any) => (
+                  <li key={item.name}><Link href={item.href} className="hover:text-[#2f1d16]">{item.name}</Link></li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8b6d5a]">Resources</h4>
+              <ul className="mt-4 space-y-3 text-sm">
+                {footerLinks.resources.map((item) => (
                   <li key={item.name}><Link href={item.href} className="hover:text-[#2f1d16]">{item.name}</Link></li>
                 ))}
               </ul>
@@ -176,7 +183,7 @@ export function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] text-slate-950">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr_0.8fr]">
+        <div className="grid gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
           <div>
             <Link href="/" className="flex items-center gap-3">
               <div className="h-11 w-11 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
@@ -189,7 +196,7 @@ export function Footer() {
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-slate-600">{SITE_CONFIG.description}</p>
           </div>
-          {(['platform', 'company', 'resources', 'legal'] as const).map((section) => (
+          {(['platform', 'company', 'resources', 'legal'] as const).filter(section => footerLinks[section].length > 0).map((section) => (
             <div key={section}>
               <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">{section}</h3>
               <ul className="mt-5 space-y-3 text-sm text-slate-600">
